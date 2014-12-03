@@ -67,13 +67,19 @@ if __name__ == '__main__':
         #parse the arguments given
         args = parser.parse_args()
 
-        #pass warning to user regarding starting HTTP server without iPXE
-        if args.USE_HTTP and not args.USE_IPXE and not args.USE_DHCP:
-            print '\nWARNING: HTTP selected but iPXE disabled. PXE ROM must support HTTP requests.\n'
-        
         #if the argument was pased to enabled ProxyDHCP then enable the DHCP server
         if args.DHCP_MODE_PROXY:
             args.USE_DHCP = True
+            
+        #Quit program if PXE was selected but no DHCP server was
+        if args.USE_IPXE and not args.USE_DHCP:
+            print '\nERROR: PXE was selected without a DHCP server. Please rerun with either the --dhcp or --proxy-dhcp options.\n'
+            return
+        
+        #pass warning to user regarding starting HTTP server without iPXE
+        if args.USE_HTTP and not args.USE_IPXE:
+            print '\nERROR: HTTP selected but iPXE disabled. Please rerun with the --ipxe option.\n'
+            return
 
         #if the network boot file name was not specified in the argument, set it based on what services were enabled/disabled
         if args.NETBOOT_FILE == '':
