@@ -33,6 +33,7 @@ class DHCPD:
         self.http = serverSettings.get('usehttp', False)
         self.mode_proxy = serverSettings.get('mode_proxy', False) #ProxyDHCP mode
         self.mode_debug = serverSettings.get('mode_debug', False) #debug mode
+        self.more_options #-------------------------------------------------------------continue later
         self.magic = struct.pack('!I', 0x63825363) #magic cookie
 
         if self.http and not self.ipxe:
@@ -151,7 +152,7 @@ class DHCPD:
                     print '[DEBUG] New DHCP Assignment - MAC: ' + self.printMAC(clientmac) + ' -> IP: ' + self.leases[clientmac]['ip']
             response += socket.inet_aton(offer) #yiaddr
         else:
-            response += socket.inet_aton('0.0.0.0')
+            response += socket.inet_aton('0.0.0.0')   #--------------------------------------doesn't make sense
         response += socket.inet_aton(self.fileserver) #siaddr
         response += socket.inet_aton('0.0.0.0') #giaddr
         response += chaddr #chaddr
@@ -193,6 +194,10 @@ class DHCPD:
         if self.mode_proxy:
             response += self.tlvEncode(60, 'PXEClient')
             response += struct.pack('!BBBBBBB4sB', 43, 10, 6, 1, 0b1000, 10, 4, chr(0) + 'PXE', 0xff)
+            
+        if self.special_options:
+            
+            
         response += '\xff'
         return response
 
